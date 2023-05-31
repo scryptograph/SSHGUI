@@ -97,4 +97,111 @@ class Application(tk.Tk):
 
         self.command_entry = tk.Entry(self)
         self.command_entry.insert(0, "Test Command")
-       
+        self.command_entry.pack()
+
+        self.execute_button = tk.Button(self, text="Execute", command=self.execute_command)
+        self.execute_button.pack()
+
+        self.variable_entry = tk.Entry(self)
+        self.variable_entry.insert(0, "Variable Name")
+        self.variable_entry.pack()
+
+        self.add_variable_button = tk.Button(self, text="Add Variable", command=self.add_variable)
+        self.add_variable_button.pack()
+
+        self.shmoo_variable_entry = tk.Entry(self)
+        self.shmoo_variable_entry.insert(0, "Variable Index (0-based)")
+        self.shmoo_variable_entry.pack()
+
+        self.shmoo_result_entry = tk.Entry(self)
+        self.shmoo_result_entry.insert(0, "Result")
+        self.shmoo_result_entry.pack()
+
+        self.update_shmoo_button = tk.Button(self, text="Update Shmoo", command=self.update_shmoo)
+        self.update_shmoo_button.pack()
+
+        self.setting_button = tk.Button(self, text="Settings", command=self.show_settings)
+        self.setting_button.pack()
+
+    def connect_ssh(self):
+        host = self.host_entry.get()
+        port = int(self.port_entry.get())
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        self.ssh_client.connect(host, port, username, password)
+
+        if self.ssh_client.connected:
+            self.connect_button.config(state=tk.DISABLED)
+            self.disconnect_button.config(state=tk.NORMAL)
+
+    def disconnect_ssh(self):
+        self.ssh_client.disconnect()
+
+        self.connect_button.config(state=tk.NORMAL)
+        self.disconnect_button.config(state=tk.DISABLED)
+
+    def execute_command(self):
+        command = self.command_entry.get()
+        result = self.ssh_client.execute_command(command)
+        messagebox.showinfo("Command Execution Result", f"Result:\n{result}")
+
+    def add_variable(self):
+        variable_name = self.variable_entry.get()
+        self.shmoo_plotter.add_variable(variable_name)
+
+    def update_shmoo(self):
+        variable_index = int(self.shmoo_variable_entry.get())
+        result = self.shmoo_result_entry.get()
+        self.shmoo_plotter.update_shmoo(variable_index, result)
+
+    def show_settings(self):
+        settings_window = tk.Toplevel(self)
+        settings_window.title("Settings")
+        settings_window.geometry("400x300")
+
+        host_label = tk.Label(settings_window, text="SSH Host:")
+        host_label.pack()
+        host_entry = tk.Entry(settings_window)
+        host_entry.insert(0, self.host_entry.get())
+        host_entry.pack()
+
+        port_label = tk.Label(settings_window, text="SSH Port:")
+        port_label.pack()
+        port_entry = tk.Entry(settings_window)
+        port_entry.insert(0, self.port_entry.get())
+        port_entry.pack()
+
+        username_label = tk.Label(settings_window, text="Username:")
+        username_label.pack()
+        username_entry = tk.Entry(settings_window)
+        username_entry.insert(0, self.username_entry.get())
+        username_entry.pack()
+
+        password_label = tk.Label(settings_window, text="Password:")
+        password_label.pack()
+        password_entry = tk.Entry(settings_window, show="*")
+        password_entry.insert(0, self.password_entry.get())
+        password_entry.pack()
+
+        save_button = tk.Button(settings_window, text="Save", command=lambda: self.save_settings(settings_window, host_entry, port_entry, username_entry, password_entry))
+        save_button.pack()
+
+    def save_settings(self, settings_window, host_entry, port_entry, username_entry, password_entry):
+        self.host_entry.delete(0, tk.END)
+        self.host_entry.insert(0, host_entry.get())
+
+        self.port_entry.delete(0, tk.END)
+        self.port_entry.insert(0, port_entry.get())
+
+        self.username_entry.delete(0, tk.END)
+        self.username_entry.insert(0, username_entry.get())
+
+        self.password_entry.delete(0, tk.END)
+        self.password_entry.insert(0, password_entry.get())
+
+        settings_window.destroy()
+
+if __name__ == "__main__":
+    app = Application()
+    app.mainloop()
