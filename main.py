@@ -5,49 +5,45 @@ import matplotlib.pyplot as plt
 import threading
 
 class SSHClient:
-    def init(self):
+    def __init__(self):
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.connected = False
 
-def connect(self, host, port, username, password):
-    try:
-        self.ssh.connect(host, port=port, username=username, password=password)
-        self.connected = True
-        messagebox.showinfo("Connection", "Connected to the system.")
-    except paramiko.AuthenticationException:
-        messagebox.showerror("Connection", "Authentication failed.")
-    except paramiko.SSHException as ssh_exception:
-        messagebox.showerror("Connection", f"SSH connection failed: {ssh_exception}")
-    except Exception as e:
-        messagebox.showerror("Connection", f"An error occurred: {e}")
+    def connect(self, host, port, username, password):
+        try:
+            self.ssh.connect(host, port=port, username=username, password=password)
+            self.connected = True
+            messagebox.showinfo("Connection", "Connected to the system.")
+        except paramiko.AuthenticationException:
+            messagebox.showerror("Connection", "Authentication failed.")
+        except paramiko.SSHException as ssh_exception:
+            messagebox.showerror("Connection", f"SSH connection failed: {ssh_exception}")
+        except Exception as e:
+            messagebox.showerror("Connection", f"An error occurred: {e}")
 
+    def disconnect(self):
+        self.ssh.close()
+        self.connected = False
 
-def disconnect(self):
-    self.ssh.close()
-    self.connected = False
-
-
-def execute_command(self, command):
-    if self.connected:
-        stdin, stdout, stderr = self.ssh.exec_command(command)
-        return stdout.read().decode().strip()
-    else:
-        messagebox.showwarning("Command Execution", "Not connected to the system.")
-
+    def execute_command(self, command):
+        if self.connected:
+            stdin, stdout, stderr = self.ssh.exec_command(command)
+            return stdout.read().decode().strip()
+        else:
+            messagebox.showwarning("Command Execution", "Not connected to the system.")
 
 class ShmooPlotter:
     def __init__(self):
         self.variables = []
         self.commands = []
         self.results = []
+
     def add_variable(self, variable_name):
         self.variables.append(variable_name)
 
-
     def add_command(self, command):
         self.commands.append(command)
-
 
     def update_shmoo(self, variable_index, result):
         self.results.append((variable_index, float(result)))
@@ -70,7 +66,7 @@ class ShmooPlotter:
 
 class Application(tk.Tk):
     def __init__(self):
-        super().init()
+        super().__init__()
         self.title("SSH Test Commands")
         self.geometry("400x400")
 
@@ -101,3 +97,4 @@ class Application(tk.Tk):
 
         self.command_entry = tk.Entry(self)
         self.command_entry.insert(0, "Test Command")
+       
